@@ -1,4 +1,4 @@
-# Реалізація інформаційного та програмного забезпечення
+    # Реалізація інформаційного та програмного забезпечення
 
 ## SQL-скрипт для створення на початкового наповнення бази даних
 
@@ -319,86 +319,125 @@ COMMIT;
 
 ## RESTfull сервіс для управління даними
 
-### Головний файл index.js
+### Клас запуску проекту
 
-```js
-import express from 'express';
-import mysql from 'mysql';
-import cors from 'cors';
+```java
+@SpringBootApplication
+public class DbLabApplication {
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+	public static void main(String[] args) {
+		SpringApplication.run(DbLabApplication.class, args);
+	}
 
-app.listen(8080, () => {
-	console.log(`Connected on the port 8080 ~ http://localhost:8080/`);
-});
+}
 ```
 
-### Підключення до бази данних
+### Контролер для комунікації з функіоналом для користувачів
 
-```js
-const db = mysql.createConnection({
-	host: 'localhost',
-	user: 'root',
-	password: '',
-	database: 'mydb',
-});
+```java
+@RestController
+@RequestMapping("/users")
+public class UserController {
+
+    private UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public User createUser(@RequestBody CreateUserReq request) {
+        return userService.createUser(request);
+    }
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/{userId}")
+    public User getUserById(@PathVariable Long userId) {
+        return userService.getUserById(userId);
+    }
+
+    @PutMapping
+    public User updateUser(@RequestBody UpdateUserReq request) {
+        return userService.updateUser(request);
+    }
+
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+    }
+}
 ```
 
-### Роутер
+### Реквести
 
-```js
-app.get('/', (req, res) => {
-	res.json('Connected to backend');
-});
+```java
+public record CreateUserReq(String username, String password, String email) {
+}
 
-app.get('/users', (req, res) => {
-	const q = 'SELECT * FROM user';
-	db.query(q, (err, data) => {
-		if (err) return res.json(err);
-		return res.json(data);
-	});
-});
+public record UpdateUserReq(Long userId, String username, String password, String email) {
+}
+```
 
-app.get('/users/:id', (req, res) => {
-	const id = req.params.id;
-	const q = 'SELECT * FROM user WHERE id = ?';
+### Репозиторій для комунікації з бд
 
-	db.query(q, [id], (err, data) => {
-		if (err) return res.json(err);
-		return res.json(data);
-	});
-});
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+}
+```
 
-app.post('/users', (req, res) => {
-	const q = 'INSERT INTO user (`id`, `nickname`, `email`, `password`, `isBlocked`) VALUES (?)';
-	const values = [null, req.body.nickname, req.body.email, req.body.password, req.body.isBlocked];
-	db.query(q, [values], (err, data) => {
-		if (err) return res.json(err);
-		return res.json('User registred successfuly');
-	});
-});
+### Сервіс для користувачів
 
-app.delete('/users/:id', (req, res) => {
-	const id = req.params.id;
-	const q = 'DELETE FROM user WHERE id = ?';
+```java
+@Service
+public class UserService {
 
-	db.query(q, [id], (err, data) => {
-		if (err) return res.json(err);
-		return res.json('User deleted successfuly');
-	});
-});
+    private UserRepository userRepository;
 
-app.put('/users/:id', (req, res) => {
-	const id = req.params.id;
-	const q = 'UPDATE user SET `nickname`= ?, `email`= ?, `password`= ?, `isBlocked`= ? WHERE id = ?';
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
-	const values = [req.body.nickname, req.body.email, req.body.password, req.body.isBlocked];
+    public User createUser(CreateUserReq request) {
+        User user = User.builder()
+                .email(request.email())
+                .password(request.password())
+                .username(request.username())
+                .build();
 
-	db.query(q, [...values, id], (err, data) => {
-		if (err) return res.send(err);
-		return res.json('Updated successfuly');
-	});
-});
+        return userRepository.save(user);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User getUserById(long userId) {
+        return getUserByIdOrThrowException(userId);
+    }
+
+    public User updateUser(UpdateUserReq request) {
+        User userToBeUpdated = getUserByIdOrThrowException(request.userId());
+
+        userToBeUpdated.setUsername(request.username());
+        userToBeUpdated.setEmail(request.email());
+        userToBeUpdated.setPassword(request.password());
+
+        return userRepository.save(userToBeUpdated);
+    }
+
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
+    }
+
+    private User getUserByIdOrThrowException(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User was not found"));
+    }
+}
 ```

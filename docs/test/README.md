@@ -1,81 +1,50 @@
 # Тестування працездатності системи
 
-## Старт серверу
-
-![Server Start](../assets/images/serverstart.png)
-
-## Початкове наповнення 
-
-![Database](../assets/images/db.png)
-
-## POST
+## POST User
 
 #### Запит
-
-![Post Request](../assets/images/postreq.png)
-
-#### Відповідь серверу
-
-![Post Server Answer](../assets/images/postreqans.png)
+![Post request](../assets/images/CreateUserReq.jpg)
 
 #### Результат
 
-![Post result](../assets/images/postres.png)
+![Result](../assets/images/CreateUserRes.png)
+
+## PUT User
+
+#### Запит
+
+![Put Request](../assets/images/UpdateUserReq.png)
+
+#### Результат
+
+![Result](../assets/images/UpdateUserRes.png)
+
+## DELETE User
+
+#### Запит
+
+![Request](../assets/images/DeleteUserReq.png)
+
+#### Результат
+
+![Result](../assets/images/DeleteUserRes.png)
 
 ## GET ALL
 
 #### Запит
 
-![Get All Request](../assets/images/getall.png)
+![Request](../assets/images/GetAllReq.png)
 
-#### Відповідь серверу
+#### Результат
 
-![Post Server Answer](../assets/images/getallansw.png)
+![Result](../assets/images/GetAllRes.png)
 
 ## GET BY ID
 
 #### Запит
 
-![Get All Request](../assets/images/getid.png)
-
-#### Відповідь серверу
-
-![Post Server Answer](../assets/images/getidans.png)
-
-## PUT
-
-#### Запит
-
-![Post Request](../assets/images/put.png)
-
-#### Відповідь серверу
-
-![Post Server Answer](../assets/images/putans.png)
+![Request](../assets/images/GetByIdReq.png)
 
 #### Результат
 
-![Post result](../assets/images/putres.png)
-
-## DELETE
-
-#### Запит
-
-![Post Request](../assets/images/del.png)
-
-#### Відповідь серверу
-
-![Post Server Answer](../assets/images/delansw.png)
-
-#### Результат
-
-![Post result](../assets/images/delres.png)
-
-## ERROR TEST
-
-#### Запит
-
-![Post Request](../assets/images/badreq.png)
-
-#### Відповідь серверу
-
-![Post Server Answer](../assets/images/badreqstatus.png)
+![Result](../assets/images/GetByIdRes.png)
